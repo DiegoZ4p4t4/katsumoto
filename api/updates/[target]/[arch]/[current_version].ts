@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-const GITHUB_REPO = "anomalyco/katsumoto";
+const GITHUB_REPO = "DiegoZ4p4t4/katsumoto";
 const GITHUB_API = `https://api.github.com/repos/${GITHUB_REPO}/releases/latest`;
 
 interface PlatformAsset {
