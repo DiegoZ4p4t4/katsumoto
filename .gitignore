@@ -31,6 +31,10 @@ redisdata/
 # Testing
 coverage/
 
+# Debug artifacts
+.playwright-mcp/
+test-results/
+
 # Signing keys
 *.key
 *.key.pub

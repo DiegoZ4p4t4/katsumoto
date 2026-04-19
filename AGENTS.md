@@ -2,13 +2,21 @@
 
 ## Proyecto
 
-Sistema POS/Inventario/ERP para **UNITED PARTS GROUP S.A.C.** (RUC 20608183672), empresa de repuestos agricolas en Pichanaqui, Junin, Peru.
+Sistema POS/Inventario/ERP para **SERVICIOS GENERALES UNITED E.I.R.L.** (RUC 20608183672), nombre comercial **Katsumoto**. Repuestos agricolas en Pichanaqui, Junin, Peru.
+
+## Documentacion critica
+
+Ver `docs/` para documentacion operacional:
+- `01-signing-keys.md` — Claves de firma ed25519 (CRITICO)
+- `02-release.md` — Flujo de versiones y auto-update
+- `03-deployment.md` — Deploy EFs, secrets, verify_jwt
+- `04-architecture.md` — Arquitectura y disaster recovery
 
 ## Tech Stack
 
 - **Frontend:** React 19 + TypeScript + Vite 6 (SWC) + shadcn/ui + Tailwind CSS + TanStack Query
 - **Backend:** Supabase (PostgreSQL 15 + Auth + Edge Functions/Deno)
-- **Deploy:** Vercel (frontend) + Supabase (backend)
+- **Deploy:** GitHub Releases (desktop app + auto-update) + Supabase (backend)
 - **Package Manager:** pnpm
 
 ## Comandos
