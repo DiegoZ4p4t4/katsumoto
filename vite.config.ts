@@ -2,6 +2,9 @@ import { defineConfig } from "vite";
 import dyadComponentTagger from "@dyad-sh/react-vite-component-tagger";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
+import { readFileSync } from "fs";
+
+const tauriConf = JSON.parse(readFileSync(path.resolve(__dirname, "src-tauri/tauri.conf.json"), "utf-8"));
 
 export default defineConfig(() => ({
   server: {
@@ -9,7 +12,7 @@ export default defineConfig(() => ({
     port: 8551,
   },
   define: {
-    __APP_VERSION__: JSON.stringify("2.0.0"),
+    __APP_VERSION__: JSON.stringify(tauriConf.version),
   },
   plugins: [...(process.env.NODE_ENV === "development" ? [dyadComponentTagger()] : []), react()],
   resolve: {

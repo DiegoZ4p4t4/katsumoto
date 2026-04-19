@@ -3,10 +3,11 @@ import { Sidebar } from "./Sidebar";
 import { BranchSelector } from "./BranchSelector";
 import { ThemeToggle } from "./ThemeToggle";
 import { UpdateNotification } from "./shared/UpdateNotification";
-import { Menu, Wifi, WifiOff } from "lucide-react";
+import { Menu, Wifi, WifiOff, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { SidebarProvider, useSidebar } from "./SidebarContext";
 import { useRealtimeStatus } from "@/lib/realtime-context";
+import { useAutoUpdate } from "@/hooks/useAutoUpdate";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 function RealtimeIndicator() {
@@ -30,6 +31,38 @@ function RealtimeIndicator() {
       </TooltipTrigger>
       <TooltipContent side="bottom">
         <p>{label}</p>
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+function UpdateCheckButton() {
+  const { checkForUpdates, lastChecked } = useAutoUpdate();
+  const [checking, setChecking] = useState(false);
+
+  const handleCheck = async () => {
+    setChecking(true);
+    await checkForUpdates();
+    setTimeout(() => setChecking(false), 1500);
+  };
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          onClick={handleCheck}
+          className="p-2 hover:bg-muted rounded-lg transition-colors"
+        >
+          <RefreshCw className={`w-4 h-4 text-muted-foreground ${checking ? "animate-spin" : ""}`} />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="bottom">
+        <p>Buscar actualizaciones</p>
+        {lastChecked && (
+          <p className="text-[10px] text-muted-foreground">
+            Ultima verificacion: {lastChecked.toLocaleTimeString()}
+          </p>
+        )}
       </TooltipContent>
     </Tooltip>
   );
@@ -64,6 +97,7 @@ function LayoutInner({ children }: { children: React.ReactNode }) {
             <BranchSelector />
           </div>
           <div className="flex items-center gap-1">
+            <UpdateCheckButton />
             <RealtimeIndicator />
             <ThemeToggle />
           </div>
