@@ -1,6 +1,6 @@
 [package]
 name = "katsumoto-pos"
-version = "2.0.1"
+version = "2.0.2"
 description = "Katsumoto POS - United Parts Group"
 authors = ["United Parts Group"]
 edition = "2021"
