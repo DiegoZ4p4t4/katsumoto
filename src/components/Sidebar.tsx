@@ -5,7 +5,7 @@ import {
   LogOut, ArrowUpDown, Store, Building2, ArrowLeftRight,
   Cog, ChevronsLeft, ChevronsRight, Wallet, ShoppingBag,
   Scale, ShieldCheck, FileSpreadsheet, Truck, ChevronDown,
-  Printer,
+  Printer, Monitor,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useSidebar } from "./SidebarContext";
@@ -66,6 +66,7 @@ const navSections: NavSection[] = [
     items: [
       { path: "/branches", label: "Sedes", icon: Building2 },
       { path: "/printer-settings", label: "Impresora", icon: Printer },
+      { path: "/system", label: "Sistema", icon: Monitor },
     ],
   },
 ];

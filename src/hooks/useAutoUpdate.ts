@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { usePlatform } from "@/lib/platform";
 
 export interface UpdateInfo {
@@ -7,14 +7,17 @@ export interface UpdateInfo {
   body: string;
 }
 
+export type DownloadStatus = "idle" | "checking" | "downloading" | "downloaded" | "error";
+
 export interface UseAutoUpdateReturn {
   updateAvailable: boolean;
   updateInfo: UpdateInfo | null;
-  downloading: boolean;
+  downloadStatus: DownloadStatus;
   progress: number;
   error: string | null;
   checkForUpdates: () => Promise<void>;
-  downloadAndInstall: () => Promise<void>;
+  downloadUpdate: () => Promise<void>;
+  installAndRestart: () => Promise<void>;
   lastChecked: Date | null;
 }
 
@@ -22,13 +25,14 @@ export function useAutoUpdate(): UseAutoUpdateReturn {
   const { isTauri } = usePlatform();
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
-  const [downloading, setDownloading] = useState(false);
+  const [downloadStatus, setDownloadStatus] = useState<DownloadStatus>("idle");
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [lastChecked, setLastChecked] = useState<Date | null>(null);
 
   const checkForUpdates = useCallback(async () => {
     if (!isTauri) return;
+    setDownloadStatus("checking");
     setError(null);
 
     try {
@@ -46,31 +50,32 @@ export function useAutoUpdate(): UseAutoUpdateReturn {
         setUpdateAvailable(false);
         setUpdateInfo(null);
       }
+      setDownloadStatus("idle");
       setLastChecked(new Date());
     } catch (e) {
       setError(e instanceof Error ? e.message : "Error verificando actualizaciones");
+      setDownloadStatus("error");
     }
   }, [isTauri]);
 
-  const downloadAndInstall = useCallback(async () => {
+  const downloadUpdate = useCallback(async () => {
     if (!isTauri || !updateAvailable) return;
-    setDownloading(true);
+    setDownloadStatus("downloading");
     setProgress(0);
     setError(null);
 
     try {
       const { check } = await import("@tauri-apps/plugin-updater");
-      const { relaunch } = await import("@tauri-apps/plugin-process");
 
       const update = await check();
       if (!update) {
-        setDownloading(false);
+        setDownloadStatus("idle");
         return;
       }
 
       let totalBytes = 0;
       let downloadedBytes = 0;
-      await update.downloadAndInstall((ev: { event: string; data: Record<string, unknown> }) => {
+      await update.download((ev: { event: string; data: Record<string, unknown> }) => {
         if (ev.event === "Started" && ev.data.contentLength) {
           totalBytes = ev.data.contentLength as number;
           setProgress(5);
@@ -82,30 +87,32 @@ export function useAutoUpdate(): UseAutoUpdateReturn {
         }
       });
 
-      await relaunch();
+      setDownloadStatus("downloaded");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error instalando actualización");
-      setDownloading(false);
+      setError(e instanceof Error ? e.message : "Error descargando actualización");
+      setDownloadStatus("error");
     }
   }, [isTauri, updateAvailable]);
 
-  useEffect(() => {
-    if (isTauri) {
-      const timer = setTimeout(() => {
-        checkForUpdates();
-      }, 10000);
-      return () => clearTimeout(timer);
+  const installAndRestart = useCallback(async () => {
+    if (!isTauri) return;
+    try {
+      const { relaunch } = await import("@tauri-apps/plugin-process");
+      await relaunch();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Error reiniciando la aplicación");
     }
-  }, [isTauri, checkForUpdates]);
+  }, [isTauri]);
 
   return {
     updateAvailable,
     updateInfo,
-    downloading,
+    downloadStatus,
     progress,
     error,
     checkForUpdates,
-    downloadAndInstall,
+    downloadUpdate,
+    installAndRestart,
     lastChecked,
   };
 }
