@@ -1,0 +1,19 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Install dependencies
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install
+
+# Copy source code
+COPY . .
+
+# Expose port 8551
+EXPOSE 8551
+
+# Start development server
+CMD ["pnpm", "run", "dev", "--host", "0.0.0.0", "--port", "8551"]

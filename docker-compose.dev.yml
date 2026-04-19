@@ -1,0 +1,21 @@
+services:
+  frontend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: katsumoto-frontend-dev
+    ports:
+      - "8551:8551"
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/dist
+    restart: unless-stopped
+    networks:
+      - katsumoto-network
+
+networks:
+  katsumoto-network:
+    driver: bridge

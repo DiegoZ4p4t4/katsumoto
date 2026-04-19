@@ -1,0 +1,18 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+        - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+    container_name: katsumoto-frontend
+    ports:
+      - "8551:8551"
+    restart: unless-stopped
+    networks:
+      - katsumoto-network
+
+networks:
+  katsumoto-network:
+    driver: bridge

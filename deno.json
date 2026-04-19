@@ -1,0 +1,7 @@
+{
+  "nodeModulesDir": "auto",
+  "fmt": {
+    "semiColons": true,
+    "singleQuote": false
+  }
+}

@@ -1,0 +1,119 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - region "Notifications (F8)":
+      - list
+    - region "Notifications alt+T"
+    - generic [ref=e6]:
+      - complementary [ref=e7]:
+        - generic [ref=e8]:
+          - generic [ref=e10]:
+            - img [ref=e12]
+            - generic [ref=e21]:
+              - heading "Katsumoto" [level=1] [ref=e22]
+              - paragraph [ref=e23]: Sistema de Facturación
+          - button "Colapsar menú" [ref=e25] [cursor=pointer]:
+            - img [ref=e26]
+          - navigation [ref=e29]:
+            - link "Dashboard" [ref=e30] [cursor=pointer]:
+              - /url: /
+              - img [ref=e31]
+              - generic [ref=e36]: Dashboard
+            - link "Punto de Venta" [ref=e37] [cursor=pointer]:
+              - /url: /pos
+              - img [ref=e38]
+              - generic [ref=e43]: Punto de Venta
+            - link "Cajas" [ref=e44] [cursor=pointer]:
+              - /url: /cash-registers
+              - img [ref=e45]
+              - generic [ref=e48]: Cajas
+            - link "Inventario" [ref=e49] [cursor=pointer]:
+              - /url: /inventory
+              - img [ref=e50]
+              - generic [ref=e54]: Inventario
+            - link "Modelos de Máquina" [ref=e55] [cursor=pointer]:
+              - /url: /machines
+              - img [ref=e56]
+              - generic [ref=e67]: Modelos de Máquina
+            - link "Transferencias" [ref=e68] [cursor=pointer]:
+              - /url: /transfers
+              - img [ref=e69]
+              - generic [ref=e72]: Transferencias
+            - link "Movimientos" [ref=e73] [cursor=pointer]:
+              - /url: /stock
+              - img [ref=e74]
+              - generic [ref=e77]: Movimientos
+            - link "Facturación" [active] [ref=e78] [cursor=pointer]:
+              - /url: /invoices
+              - img [ref=e79]
+              - generic [ref=e82]: Facturación
+            - link "Pedidos Online" [ref=e83] [cursor=pointer]:
+              - /url: /orders
+              - img [ref=e84]
+              - generic [ref=e87]: Pedidos Online
+            - link "Clientes" [ref=e88] [cursor=pointer]:
+              - /url: /clients
+              - img [ref=e89]
+              - generic [ref=e94]: Clientes
+            - link "Sedes" [ref=e95] [cursor=pointer]:
+              - /url: /branches
+              - img [ref=e96]
+              - generic [ref=e100]: Sedes
+            - link "Config. Tributaria" [ref=e101] [cursor=pointer]:
+              - /url: /tax-configuration
+              - img [ref=e102]
+              - generic [ref=e106]: Config. Tributaria
+            - link "SUNAT" [ref=e107] [cursor=pointer]:
+              - /url: /sunat-config
+              - img [ref=e108]
+              - generic [ref=e111]: SUNAT
+            - link "Docs SUNAT" [ref=e112] [cursor=pointer]:
+              - /url: /sunat-documents
+              - img [ref=e113]
+              - generic [ref=e116]: Docs SUNAT
+          - generic [ref=e117]:
+            - generic [ref=e118]:
+              - generic [ref=e119]:
+                - paragraph [ref=e120]: Juan
+                - paragraph [ref=e121]: juan.zapata@datacodev.com
+              - button "Cerrar sesión" [ref=e122] [cursor=pointer]:
+                - img [ref=e123]
+            - paragraph [ref=e126]: Katsumoto v1.0
+      - generic [ref=e127]:
+        - banner [ref=e128]:
+          - combobox [ref=e130] [cursor=pointer]:
+            - generic:
+              - generic:
+                - img
+                - text: Todas las Sedes
+            - img [ref=e131]
+          - generic [ref=e133]:
+            - button "Cambiar a modo oscuro" [ref=e134] [cursor=pointer]:
+              - img [ref=e135]
+            - button [ref=e137] [cursor=pointer]:
+              - img [ref=e138]
+        - main [ref=e142]:
+          - generic [ref=e275]:
+            - generic [ref=e276]:
+              - generic [ref=e277]:
+                - heading "Comprobantes de Pago" [level=1] [ref=e278]
+                - button [ref=e279] [cursor=pointer]:
+                  - img [ref=e280]
+              - button "Nuevo Comprobante" [ref=e283] [cursor=pointer]:
+                - img
+                - text: Nuevo Comprobante
+            - paragraph [ref=e284]: 0 comprobantes · Todas las sedes
+            - generic [ref=e285]:
+              - combobox [ref=e286] [cursor=pointer]:
+                - generic: Todos los estados
+                - img [ref=e287]
+              - combobox [ref=e289] [cursor=pointer]:
+                - generic: Todos los tipos
+                - img [ref=e290]
+            - generic [ref=e292]:
+              - img [ref=e293]
+              - paragraph [ref=e296]: No hay comprobantes
+              - paragraph [ref=e297]: Emite tu primer comprobante para empezar a registrar ventas.
+              - button "Crear Primer Comprobante" [ref=e298] [cursor=pointer]:
+                - img
+                - text: Crear Primer Comprobante
+  - generic [ref=e274]: 0.0M

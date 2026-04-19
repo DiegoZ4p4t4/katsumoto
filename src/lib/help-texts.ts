@@ -1,0 +1,15 @@
+export const HELP_TEXTS = {
+  dashboard: { title: "Dashboard", content: "Resumen general del negocio. Aquí ves las métricas clave: productos activos, alertas de stock bajo, comprobantes pendientes y facturación. Usa el selector de sede para filtrar por sucursal." },
+  pos: { title: "Punto de Venta", content: "Vende productos directamente desde aquí. Selecciona productos del catálogo, agrégalos al carrito y cobra. El sistema calcula IGV automáticamente según el tipo de afectación de cada producto. Soporta boleta y factura. Necesitas una caja abierta para vender." },
+  inventory: { title: "Inventario", content: "Gestiona todos los productos del catálogo. Puedes crear, editar, eliminar y ajustar stock. Filtra por familia, grupo, categoría, máquina compatible y tipo de afectación IGV. Exporta a CSV para reportes." },
+  machines: { title: "Modelos de Máquina", content: "Registra las máquinas agroindustriales y asocia repuestos compatibles. Esto permite filtrar productos por máquina en el inventario y ayudar al cliente a encontrar lo que necesita." },
+  transfers: { title: "Transferencias entre Sedes", content: "Envía productos de una sede a otra. Por ejemplo: reponer stock del almacén a la tienda, o mover mercadería entre puntos de venta. Cada transferencia descuenta del origen y suma al destino automáticamente." },
+  stockMovements: { title: "Historial de Movimientos", content: "Registro histórico completo de todo lo que pasa con tu inventario: compras que llegan, ventas que salen, ajustes por inventario físico y transferencias entre sedes. Es tu bitácora de auditoría. Para mover stock entre sedes usa el módulo de Transferencias." },
+  invoices: { title: "Comprobantes de Pago", content: "Gestiona facturas, boletas y notas de crédito/débito conforme a SUNAT. Cada comprobante calcula IGV automáticamente según el tipo de afectación. Puedes emitir, aceptar, marcar como pagado o anular." },
+  createInvoice: { title: "Nuevo Comprobante", content: "Crea un comprobante seleccionando tipo (factura/boleta), cliente y productos. El sistema calcula subtotal, IGV y total automáticamente. Solo se puede emitir desde Puntos de Venta o Tienda Virtual, no desde almacén." },
+  clients: { title: "Clientes", content: "Administra tu cartera de clientes con RUC o DNI. Los clientes con RUC se usan para facturas, los DNI para boletas. Puedes filtrar por tipo de documento y departamento." },
+  branches: { title: "Sedes", content: "Gestiona las sucursales de tu empresa: almacén (recibe compras), punto de venta (emite comprobantes) y tienda virtual (ventas online). Cada sede tiene su propio stock independiente." },
+  cashRegisters: { title: "Cajas", content: "Controla las cajas registradoras de cada punto de venta. Abres una caja al inicio del turno con un fondo inicial, registras todas las ventas durante el día, y al cerrar verificas el efectivo con el arqueo de caja. Cada transacción queda registrada con su método de pago." },
+} as const;
+
+export type HelpKey = keyof typeof HELP_TEXTS;

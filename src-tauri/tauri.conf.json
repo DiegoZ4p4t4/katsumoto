@@ -1,0 +1,50 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Katsumoto POS",
+  "version": "2.0.0",
+  "identifier": "com.katsumoto.pos",
+  "build": {
+    "beforeDevCommand": "pnpm dev",
+    "devUrl": "http://localhost:8551",
+    "beforeBuildCommand": "pnpm build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Katsumoto POS - United Parts Group",
+        "width": 1280,
+        "height": 800,
+        "minWidth": 1024,
+        "minHeight": 600,
+        "resizable": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.supabase.co; connect-src 'self' https://*.supabase.co https://api-cpe.sunat.gob.pe https://api-test.sunat.gob.pe https://api-seguridad.sunat.gob.pe https://api-test-seguridad.sunat.gob.pe https://katsumoto.vercel.app https://api.github.com; font-src 'self'"
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDVCMTlENkFFMzU1MkYwQTkKUldTcDhGSTFydFlaVzcvYXFjaWRhTzhGK3VnM1o5NmlMcmMzM0dDaWgvS3k0U0I4Ti9qb0dpK2IK",
+      "endpoints": [
+        "https://katsumoto.vercel.app/api/updates/{{target}}/{{arch}}/{{current_version}}"
+      ]
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "createUpdaterArtifacts": true,
+    "macOS": {
+      "entitlements": "entitlements/macOS.plist"
+    },
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}
