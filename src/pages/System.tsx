@@ -132,7 +132,10 @@ export default function System() {
                 {updateAvailable && (
                   <Button
                     size="sm"
-                    onClick={() => window.open("https://github.com/DiegoZ4p4t4/katsumoto/releases/latest", "_blank")}
+                    onClick={async () => {
+                      const { open } = await import("@tauri-apps/plugin-shell");
+                      open("https://github.com/DiegoZ4p4t4/katsumoto/releases/latest");
+                    }}
                   >
                     <ExternalLink className="w-4 h-4 mr-2" />
                     Descargar v{updateInfo?.version}
