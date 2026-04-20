@@ -8,7 +8,6 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
-        .plugin(tauri_plugin_fs::init())
         .invoke_handler(tauri::generate_handler![
             commands::printer::print_escpos,
             commands::printer::print_tcp,
@@ -17,6 +16,7 @@ pub fn run() {
             commands::printer::open_cash_drawer_tcp,
             commands::printer::check_printer_status,
             commands::printer::check_tcp_printer_status,
+            commands::update_flag::write_post_update_flag,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

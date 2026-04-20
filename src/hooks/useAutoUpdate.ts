@@ -66,8 +66,6 @@ export function useAutoUpdate(): UseAutoUpdateReturn {
 
     try {
       const { check } = await import("@tauri-apps/plugin-updater");
-      const { mkdir, writeFile } = await import("@tauri-apps/plugin-fs");
-      const { cacheDir } = await import("@tauri-apps/api/path");
 
       const update = await check();
       if (!update) {
@@ -89,11 +87,10 @@ export function useAutoUpdate(): UseAutoUpdateReturn {
         }
       });
 
-      const cache = await cacheDir();
-      const flagPath = cache + "katsumoto-pos/.post-update";
-      const dir = cache + "katsumoto-pos";
-      await mkdir(dir, { recursive: true });
-      await writeFile(flagPath, new TextEncoder().encode("1"));
+      try {
+        const { invoke } = await import("@tauri-apps/api/core");
+        await invoke("write_post_update_flag");
+      } catch {}
 
       setDownloadStatus("downloaded");
     } catch (e) {
