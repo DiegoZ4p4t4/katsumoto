@@ -14,7 +14,40 @@ Repuestos agricolas, Pichanaqui, Junin, Peru
 | Frontend | React 19 + TypeScript + Vite 6 + shadcn/ui | Bundled en Tauri |
 | Backend | Supabase (PostgreSQL 15 + Auth + Storage) | supabase.co |
 | Billing SUNAT | Edge Functions (Deno/TypeScript) | supabase.co |
-| Releases | GitHub Actions + GitHub Releases | github.com |
+| Releases + Auto-update | GitHub Actions + GitHub Releases | github.com |
+
+## Paginas del sistema (20+)
+
+| Pagina | Ruta | Seccion |
+|---|---|---|
+| Dashboard | `/` | Principal |
+| POS | `/pos` | Principal |
+| Productos | `/inventory` | Inventario |
+| Modelos de Maquina | `/machines` | Inventario |
+| Transferencias | `/transfers` | Inventario |
+| Movimientos | `/stock` | Inventario |
+| Facturacion | `/invoices` | Ventas |
+| Clientes | `/clients` | Ventas |
+| Pedidos Online | `/orders` | Ventas |
+| Cajas | `/cash-registers` | Ventas |
+| Guias Remision | `/despatches` | Logistica |
+| Config SUNAT | `/sunat-config` | SUNAT |
+| Documentos SUNAT | `/sunat-documents` | SUNAT |
+| Config Tributaria | `/tax-configuration` | SUNAT |
+| Sedes | `/branches` | Admin |
+| Impresora | `/printer-settings` | Admin |
+| Sistema | `/system` | Admin |
+
+## Hooks principales
+
+| Hook | Archivo | Proposito |
+|---|---|---|
+| `useAutoUpdate` | `hooks/useAutoUpdate.ts` | Buscar, descargar, instalar updates |
+| `useSystemInfo` | `hooks/useSystemInfo.ts` | Version, plataforma, datos empresa |
+| `useProducts` | `hooks/useProducts.ts` | CRUD productos |
+| `useInvoices` | `hooks/useInvoices.ts` | CRUD facturas |
+| `useClients` | `hooks/useClients.ts` | CRUD clientes |
+| `usePosCart` | `hooks/usePosCart.ts` | Carrito del POS |
 
 ## Base de datos (25 tablas, todas con RLS)
 

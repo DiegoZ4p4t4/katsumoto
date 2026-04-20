@@ -1,6 +1,6 @@
 # Release y Versionado
 
-## Version actual: 2.0.2
+## Version actual: 2.1.0
 
 ## Como publicar una nueva version
 
@@ -37,18 +37,32 @@ O desde https://github.com/DiegoZ4p4t4/katsumoto/releases
 Las apps instaladas detectan la nueva version en ~10 segundos despues de iniciar sesion.
 El usuario ve un banner con boton "Actualizar" → descarga → reinicio → nueva version.
 
-## Auto-update - Como funciona
+## Auto-update - Como funciona (desde v2.1.0)
+
+El auto-check automatico fue removido. Las actualizaciones se gestionan desde la pagina **Sistema** (`/sistema`):
 
 ```
-App instalada (vX)
-  → check cada 10s despues de login
+Usuario abre Sistema (sidebar → Admin → Sistema)
+  → Click "Buscar actualizaciones"
+  → Si hay nueva version:
+      → Muestra changelog + boton "Descargar vX.Y.Z"
+      → Click "Descargar" → barra de progreso
+      → Descarga completa → boton "Instalar y reiniciar"
+      → Click "Instalar" → reinicio → nueva version
+  → Si no hay:
+      → Badge verde "Estas en la ultima version"
+```
+
+Flujo interno:
+```
+App → useAutoUpdate hook
+  → check() de @tauri-apps/plugin-updater
   → GET https://github.com/DiegoZ4p4t4/katsumoto/releases/latest/download/latest.json
-  → Si version remota > version local → banner "Nueva version disponible"
-  → Usuario clickea "Actualizar"
-  → Descarga .tar.gz + .sig del release de GitHub
-  → Verifica firma ed25519 con pubkey embebida en tauri.conf.json
-  → Reemplaza .app bundle
-  → Reinicia app
+  → Compara version local vs remota
+  → Si remota > local → updateAvailable = true
+  → Usuario descarga → update.download() con progreso
+  → Usuario instala → relaunch()
+  → Tauri reemplaza .app bundle y reinicia
 ```
 
 ## Convencion de versiones
@@ -75,3 +89,7 @@ Si una version tiene bugs:
 | v2.0.0 | 19/04/2026 | Release inicial, 4 plataformas |
 | v2.0.1 | 19/04/2026 | Fix endpoint GitHub |
 | v2.0.2 | 19/04/2026 | Fix CSP wss:// Supabase Realtime |
+| v2.0.3 | 19/04/2026 | Nombre empresa corregido + docs/ creados |
+| v2.0.4 | 19/04/2026 | Version dinamica en sidebar + boton manual update |
+| v2.0.5 | 19/04/2026 | Build de prueba |
+| v2.1.0 | 19/04/2026 | Pagina Sistema con updates manuales, banner automatico eliminado |

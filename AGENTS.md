@@ -202,10 +202,11 @@ curl -X PATCH "https://api.supabase.com/v1/projects/kdsjojrrspzmufdumywd/functio
 - [ ] **Test envio GRE completo** - send-despatch + check-despatch-ticket con credenciales reales
 
 ### PENDIENTE - Consolidacion (FASE 2)
-- [ ] **Eliminar OTROS/sunat-billing-api/** - API PHP legacy (~4.4MB), ya no se necesita
-- [ ] **Limpiar OTROS/migration-sql/** - SQL inicial ya ejecutado
-- [ ] **Eliminar OTROS/certificado_sunat_20608183672.p12** - PEMs ya en Storage
+- [x] ~~Eliminar OTROS/sunat-billing-api/~~ - Ya no existe
+- [x] ~~Limpiar OTROS/migration-sql/~~ - Ya no existe
+- [x] ~~Eliminar OTROS/certificado_sunat_20608183672.p12~~ - Ya no existe
 - [ ] **Limpiar debug-despatch** - Remover handleDebugDespatch de index.ts (era para testing SOAP)
+- [ ] **Limpiar sunat-billing-consolidated** - EF legacy en supabase/functions/
 
 ### PENDIENTE - v2 Features (FASE 3)
 - [ ] **Retencion (20)** - Portear RetentionBuilder del PHP a Deno
@@ -253,3 +254,13 @@ curl -X PATCH "https://api.supabase.com/v1/projects/kdsjojrrspzmufdumywd/functio
 - Seguir patrones existentes en servicios y componentes
 - Usar Supabase MCP tools para operaciones de DB/Edge Functions
 - Deployar EFs con `npx supabase functions deploy` (CLI ya autenticado)
+- Version se lee automaticamente de `src-tauri/tauri.conf.json` via `vite.config.ts`
+- Updates manuales desde pagina Sistema (`/system`), sin auto-check automatico
+
+## GitHub Repo
+
+- **Repo:** https://github.com/DiegoZ4p4t4/katsumoto (publico)
+- **Cuenta:** DiegoZ4p4t4
+- **Secrets:** `TAURI_SIGNING_PRIVATE_KEY` + `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`
+- **Workflow:** `.github/workflows/release.yml` (4 plataformas, firma ed25519, draft release)
+- **Endpoint updates:** `https://github.com/DiegoZ4p4t4/katsumoto/releases/latest/download/latest.json`
