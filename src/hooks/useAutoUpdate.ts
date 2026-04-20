@@ -66,6 +66,8 @@ export function useAutoUpdate(): UseAutoUpdateReturn {
 
     try {
       const { check } = await import("@tauri-apps/plugin-updater");
+      const { mkdir, writeFile } = await import("@tauri-apps/plugin-fs");
+      const { cacheDir } = await import("@tauri-apps/api/path");
 
       const update = await check();
       if (!update) {
@@ -75,7 +77,7 @@ export function useAutoUpdate(): UseAutoUpdateReturn {
 
       let totalBytes = 0;
       let downloadedBytes = 0;
-      await update.download((ev: { event: string; data: Record<string, unknown> }) => {
+      await update.downloadAndInstall((ev: { event: string; data: Record<string, unknown> }) => {
         if (ev.event === "Started" && ev.data.contentLength) {
           totalBytes = ev.data.contentLength as number;
           setProgress(5);
@@ -86,6 +88,12 @@ export function useAutoUpdate(): UseAutoUpdateReturn {
           setProgress(100);
         }
       });
+
+      const cache = await cacheDir();
+      const flagPath = cache + "katsumoto-pos/.post-update";
+      const dir = cache + "katsumoto-pos";
+      await mkdir(dir, { recursive: true });
+      await writeFile(flagPath, new TextEncoder().encode("1"));
 
       setDownloadStatus("downloaded");
     } catch (e) {
