@@ -57,3 +57,62 @@ jobs:
           releaseDraft: true
           prerelease: false
           args: --target ${{ matrix.target }}
+
+  merge-latest-json:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Merge latest.json from all platforms
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ github.ref_name }}"
+          echo "Fetching release assets for $TAG"
+
+          gh release download "$TAG" --pattern "latest.json" --dir ./platform-jsons || true
+
+          if [ -f ./platform-jsons/latest.json ]; then
+            echo "Only one latest.json found, checking platforms..."
+            PLATFORMS=$(python3 -c "import json; d=json.load(open('./platform-jsons/latest.json')); print(len(d.get('platforms',{})))")
+            echo "Platforms count: $PLATFORMS"
+            if [ "$PLATFORMS" -ge 4 ]; then
+              echo "All platforms present, no merge needed"
+              exit 0
+            fi
+          fi
+
+          echo "Downloading all latest.json files from release..."
+          mkdir -p ./all-jsons
+          INDEX=0
+          gh release view "$TAG" --json assets --jq '.assets[] | select(.name == "latest.json") | .url' | while read URL; do
+            curl -sL -H "Authorization: token $GH_TOKEN" -o "./all-jsons/latest-${INDEX}.json" "$URL"
+            INDEX=$((INDEX + 1))
+          done
+
+          python3 << 'PYEOF'
+          import json, glob, os
+
+          merged = None
+          for f in sorted(glob.glob("./all-jsons/latest-*.json")):
+              try:
+                  data = json.load(open(f))
+                  if merged is None:
+                      merged = data
+                  else:
+                      merged["platforms"].update(data.get("platforms", {}))
+              except:
+                  pass
+
+          if merged:
+              with open("./latest.json", "w") as out:
+                  json.dump(merged, out, indent=2)
+              print(f"Merged {len(merged['platforms'])} platforms")
+          else:
+              print("ERROR: No latest.json files found")
+              exit(1)
+          PYEOF
+
+          echo "Uploading merged latest.json..."
+          gh release upload "$TAG" ./latest.json --clobber

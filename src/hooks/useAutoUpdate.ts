@@ -53,7 +53,7 @@ export function useAutoUpdate(): UseAutoUpdateReturn {
       setDownloadStatus("idle");
       setLastChecked(new Date());
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error verificando actualizaciones");
+      setError(e instanceof Error ? e.message : String(e));
       setDownloadStatus("error");
     }
   }, [isTauri]);
@@ -94,7 +94,7 @@ export function useAutoUpdate(): UseAutoUpdateReturn {
 
       setDownloadStatus("downloaded");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error descargando actualización");
+      setError(e instanceof Error ? e.message : String(e));
       setDownloadStatus("error");
     }
   }, [isTauri, updateAvailable]);

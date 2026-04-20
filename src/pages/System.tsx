@@ -87,16 +87,22 @@ export default function System() {
                 <div className="flex items-center gap-2">
                   {downloadStatus === "checking" ? (
                     <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                  ) : downloadStatus === "error" ? (
+                    <AlertCircle className="w-4 h-4 text-destructive" />
                   ) : updateAvailable ? (
                     <AlertCircle className="w-4 h-4 text-yellow-500" />
-                  ) : (
+                  ) : lastChecked ? (
                     <CheckCircle2 className="w-4 h-4 text-green-500" />
-                  )}
+                  ) : null}
                   {downloadStatus === "checking"
                     ? "Verificando..."
-                    : updateAvailable
-                      ? `Version ${updateInfo?.version} disponible`
-                      : "Estas en la ultima version"}
+                    : downloadStatus === "error"
+                      ? "Error al verificar"
+                      : updateAvailable
+                        ? `Version ${updateInfo?.version} disponible`
+                        : lastChecked
+                          ? "Estas en la ultima version"
+                          : "Sin verificar"}
                 </div>
                 {lastChecked && (
                   <span className="text-xs text-muted-foreground">
@@ -108,7 +114,7 @@ export default function System() {
               {error && (
                 <div className="flex items-center gap-2 text-sm text-destructive bg-destructive/10 rounded-lg p-3">
                   <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                  {error}
+                  <span className="font-mono text-xs">{error}</span>
                 </div>
               )}
 
