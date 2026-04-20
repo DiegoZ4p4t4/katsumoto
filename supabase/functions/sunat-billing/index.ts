@@ -663,63 +663,6 @@ async function handleCheckDespatchTicket(
   }
 }
 
-async function handleDebugDespatch(
-  supabase: SupabaseClientLike,
-  orgId: string,
-  credentials: SunatCredentials,
-  body: DbRecord,
-) {
-  const despatchId = body.despatch_id as string;
-  if (!despatchId) return error("despatch_id is required");
-
-  const { data: despatch, error: dErr } = await supabase
-    .from("despatches")
-    .select("*")
-    .eq("id", despatchId)
-    .eq("organization_id", orgId)
-    .single();
-  if (dErr || !despatch) return error("Despatch not found", 404);
-
-  const { data: items } = await supabase.from("despatch_items").select("*").eq(
-    "despatch_id",
-    despatchId,
-  );
-  if (!items || items.length === 0) return error("No items");
-
-  const despatchDoc = buildDespatchDocument(despatch as DbRecord, items as DbRecord[]);
-  const greVersion = String(body.gre_version || credentials.gre_version || "2.0");
-
-  const { loadP12FromStorage } = await import("./sunat/crypto/certificate.ts");
-  const { signXml } = await import("./sunat/crypto/xml-signer.ts");
-  const { buildDespatchXml } = await import("./sunat/xml/templates/despatch.ts");
-
-  const loaded = await loadP12FromStorage(supabase, credentials);
-  const unsignedXml = buildDespatchXml(despatchDoc, credentials as unknown as DbRecord, greVersion);
-  const signed = await signXml(unsignedXml, loaded);
-
-  const { sendBillRaw } = await import("./sunat/soap/soap-client.ts");
-  const { getDespatchServiceEndpoint } = await import("./sunat/utils/endpoints.ts");
-  const { buildFileBasename } = await import("./sunat/direct-client.ts");
-
-  const fileBasename = buildFileBasename(credentials, despatchDoc);
-  const greEndpoint = getDespatchServiceEndpoint(credentials);
-
-  const soapResult = await sendBillRaw(
-    { fileBasename, xml: signed.signedXml },
-    credentials,
-    greEndpoint,
-  );
-
-  return json({
-    success: true,
-    file_basename: fileBasename,
-    gre_endpoint: greEndpoint,
-    gre_version: greVersion,
-    http_status: soapResult.httpStatus,
-    raw_response: soapResult.rawResponse,
-  });
-}
-
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
@@ -790,10 +733,6 @@ Deno.serve(async (req: Request) => {
 
   if (action === "send-despatch") {
     return handleSendDespatch(supabase, orgId, credentials, body);
-  }
-
-  if (action === "debug-despatch") {
-    return handleDebugDespatch(supabase, orgId, credentials, body);
   }
 
   if (action === "check-despatch-ticket") {

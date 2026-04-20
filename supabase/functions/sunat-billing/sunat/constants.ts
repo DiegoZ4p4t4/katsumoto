@@ -49,7 +49,6 @@ export const VALID_ACTIONS = [
   "test",
   "send",
   "send-despatch",
-  "debug-despatch",
   "check-despatch-ticket",
   "check-ticket",
   "send-summary",

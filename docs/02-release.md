@@ -1,6 +1,6 @@
 # Release y Versionado
 
-## Version actual: 2.1.0
+## Version actual: 2.1.6
 
 ## Como publicar una nueva version
 
@@ -23,6 +23,7 @@ git push origin main --tags
 - Build en 4 plataformas: macOS ARM, macOS Intel, Windows, Linux
 - Firma todos los assets con ed25519
 - Crea un **draft release** con todos los instaladores
+- Job `merge-latest-json` une los `latest.json` de cada plataforma
 
 ### 4. Publicar el release
 
@@ -32,23 +33,17 @@ gh release edit vX.Y.Z --draft=false
 
 O desde https://github.com/DiegoZ4p4t4/katsumoto/releases
 
-### 5. Auto-update se activa
+## Como actualizar la app
 
-Las apps instaladas detectan la nueva version en ~10 segundos despues de iniciar sesion.
-El usuario ve un banner con boton "Actualizar" → descarga → reinicio → nueva version.
-
-## Auto-update - Como funciona (desde v2.1.0)
-
-El auto-check automatico fue removido. Las actualizaciones se gestionan desde la pagina **Sistema** (`/sistema`):
+Las actualizaciones se gestionan desde la pagina **Sistema** (`/sistema`):
 
 ```
 Usuario abre Sistema (sidebar → Admin → Sistema)
   → Click "Buscar actualizaciones"
   → Si hay nueva version:
-      → Muestra changelog + boton "Descargar vX.Y.Z"
-      → Click "Descargar" → barra de progreso
-      → Descarga completa → boton "Instalar y reiniciar"
-      → Click "Instalar" → reinicio → nueva version
+      → Muestra boton "Descargar vX.Y.Z"
+      → Click → abre navegador en GitHub Releases
+      → Descarga .dmg → abrir → arrastrar a Aplicaciones
   → Si no hay:
       → Badge verde "Estas en la ultima version"
 ```
@@ -60,10 +55,16 @@ App → useAutoUpdate hook
   → GET https://github.com/DiegoZ4p4t4/katsumoto/releases/latest/download/latest.json
   → Compara version local vs remota
   → Si remota > local → updateAvailable = true
-  → Usuario descarga → update.download() con progreso
-  → Usuario instala → relaunch()
-  → Tauri reemplaza .app bundle y reinicia
+  → Click "Descargar" → shell.open() abre navegador
+  → Usuario descarga .dmg e instala manualmente
 ```
+
+## Importante: No usar auto-update en caliente
+
+El auto-update interno de Tauri (reemplazo del .app en caliente) causa
+pantalla blanca en macOS. La app usa descarga manual via navegador.
+
+Ver `docs/05-white-screen-fix.md` para detalles.
 
 ## Convencion de versiones
 
@@ -76,10 +77,8 @@ App → useAutoUpdate hook
 Si una version tiene bugs:
 
 ```bash
-# NO se puede revertir el auto-update automaticamente
 # Solucion: publicar una nueva version (X.Y.Z+1) con el fix
-# Los usuarios que ya actualizaron reciben el fix via auto-update
-# Los que no actualizaron nunca ven la version con bugs
+# Los usuarios descargan e instalan manualmente desde Sistema
 ```
 
 ## Releases existentes
@@ -90,6 +89,12 @@ Si una version tiene bugs:
 | v2.0.1 | 19/04/2026 | Fix endpoint GitHub |
 | v2.0.2 | 19/04/2026 | Fix CSP wss:// Supabase Realtime |
 | v2.0.3 | 19/04/2026 | Nombre empresa corregido + docs/ creados |
-| v2.0.4 | 19/04/2026 | Version dinamica en sidebar + boton manual update |
+| v2.0.4 | 19/04/2026 | Version dinamica en sidebar |
 | v2.0.5 | 19/04/2026 | Build de prueba |
-| v2.1.0 | 19/04/2026 | Pagina Sistema con updates manuales, banner automatico eliminado |
+| v2.1.0 | 19/04/2026 | Pagina Sistema, banner automatico eliminado |
+| v2.1.1 | 19/04/2026 | WebView cache clear post-update |
+| v2.1.2 | 19/04/2026 | Rust command para flag post-update |
+| v2.1.3 | 19/04/2026 | Fix merge latest.json multi-platform |
+| v2.1.4 | 19/04/2026 | Fix platform keys (darwin-aarch64) |
+| v2.1.5 | 19/04/2026 | Descarga manual via navegador (solucion definitiva) |
+| v2.1.6 | 20/04/2026 | Version actual |
