@@ -87,11 +87,6 @@ export function useAutoUpdate(): UseAutoUpdateReturn {
         }
       });
 
-      try {
-        const { invoke } = await import("@tauri-apps/api/core");
-        await invoke("write_post_update_flag");
-      } catch {}
-
       setDownloadStatus("downloaded");
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -105,7 +100,7 @@ export function useAutoUpdate(): UseAutoUpdateReturn {
       const { relaunch } = await import("@tauri-apps/plugin-process");
       await relaunch();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error reiniciando la aplicación");
+      setError(e instanceof Error ? e.message : String(e));
     }
   }, [isTauri]);
 

@@ -9,10 +9,10 @@ import {
   Building2,
   RefreshCw,
   Download,
-  Rocket,
   CheckCircle2,
   AlertCircle,
   Loader2,
+  ExternalLink,
 } from "lucide-react";
 
 export default function System() {
@@ -123,47 +123,27 @@ export default function System() {
                   variant="outline"
                   size="sm"
                   onClick={checkForUpdates}
-                  disabled={downloadStatus === "checking" || downloadStatus === "downloading"}
+                  disabled={downloadStatus === "checking"}
                 >
                   <RefreshCw className={`w-4 h-4 mr-2 ${downloadStatus === "checking" ? "animate-spin" : ""}`} />
                   Buscar actualizaciones
                 </Button>
 
-                {updateAvailable && downloadStatus === "idle" && (
-                  <Button size="sm" onClick={downloadUpdate}>
-                    <Download className="w-4 h-4 mr-2" />
+                {updateAvailable && (
+                  <Button
+                    size="sm"
+                    onClick={() => window.open("https://github.com/DiegoZ4p4t4/katsumoto/releases/latest", "_blank")}
+                  >
+                    <ExternalLink className="w-4 h-4 mr-2" />
                     Descargar v{updateInfo?.version}
                   </Button>
                 )}
               </div>
 
-              {downloadStatus === "downloading" && (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="flex items-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Descargando...
-                    </span>
-                    <span className="font-mono">{progress}%</span>
-                  </div>
-                  <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
-                    <div
-                      className="bg-primary h-full rounded-full transition-all duration-300"
-                      style={{ width: `${progress}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {downloadStatus === "downloaded" && (
-                <div className="flex flex-col gap-3 p-4 border border-primary/20 rounded-lg bg-primary/5">
-                  <p className="text-sm font-medium">
-                    Actualizacion descargada. Se reiniciara la aplicacion.
-                  </p>
-                  <Button size="sm" onClick={installAndRestart}>
-                    <Rocket className="w-4 h-4 mr-2" />
-                    Instalar y reiniciar
-                  </Button>
+              {updateAvailable && (
+                <div className="text-sm text-muted-foreground bg-muted/50 rounded-lg p-3">
+                  <p>Se abrira la pagina de descargas en tu navegador.</p>
+                  <p>Descarga el archivo <strong>.dmg</strong>, abrilo y arrastra Katsumoto a Aplicaciones.</p>
                 </div>
               )}
 
