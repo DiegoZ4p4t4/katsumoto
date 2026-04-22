@@ -1,5 +1,7 @@
-import type { Product } from "./types";
-import { formatCents, formatDate } from "./format";
+import type { Product, Invoice } from "./types";
+import type { BranchStock } from "./types/branch";
+import { formatCents, formatDate, formatInvoiceNumber } from "./format";
+import type { InvoiceType, InvoiceStatus } from "./types/invoice";
 
 /**
  * Triggers a CSV file download in the browser.
@@ -37,10 +39,20 @@ function buildCSV(headers: string[], rows: string[][]): string {
 // ==========================================
 // Export Inventory to CSV
 // ==========================================
+export interface InventoryExportOptions {
+  getMachinesForProduct: (id: string) => { name: string; brand: string; model: string }[];
+  branches: { id: string; name: string }[];
+  branchStocks: BranchStock[];
+}
+
 export function exportInventoryCSV(
   products: Product[],
-  getMachinesForProduct: (id: string) => { name: string; brand: string; model: string }[]
+  options: InventoryExportOptions
 ) {
+  const { getMachinesForProduct, branches, branchStocks } = options;
+
+  const branchHeaders = branches.map((b) => `Stock ${b.name}`);
+
   const headers = [
     "SKU",
     "Código de Barras",
@@ -51,7 +63,8 @@ export function exportInventoryCSV(
     "Precio Venta (S/.)",
     "Costo (S/.)",
     "Margen (%)",
-    "Stock Actual",
+    "Stock Total",
+    ...branchHeaders,
     "Stock Mínimo",
     "Stock Máximo",
     "Estado Stock",
@@ -92,6 +105,10 @@ export function exportInventoryCSV(
       csvEscape(formatCents(p.cost_cents)),
       csvEscape(margin),
       csvEscape(p.stock),
+      ...branches.map((b) => {
+        const bs = branchStocks.find((s) => s.branch_id === b.id && s.product_id === p.id);
+        return csvEscape(bs?.stock ?? 0);
+      }),
       csvEscape(p.min_stock),
       csvEscape(p.max_stock),
       csvEscape(stockStatus),
@@ -149,4 +166,199 @@ export function exportMovementsCSV(movements: MovementExportRow[]) {
   const csv = buildCSV(headers, rows);
   const timestamp = new Date().toISOString().split("T")[0];
   downloadCSV(csv, `movimientos_stock_${timestamp}.csv`);
+}
+
+// ==========================================
+// Export Invoices (Comprobantes) to CSV
+// ==========================================
+
+const INVOICE_TYPE_LABELS: Record<InvoiceType, string> = {
+  factura: "Factura",
+  boleta: "Boleta",
+  nota_credito: "Nota de Crédito",
+  nota_debito: "Nota de Débito",
+};
+
+const INVOICE_STATUS_LABELS: Record<InvoiceStatus, string> = {
+  draft: "Borrador",
+  issued: "Emitido",
+  accepted: "Aceptado SUNAT",
+  paid: "Pagado",
+  cancelled: "Anulado",
+};
+
+export interface InvoiceExportOptions {
+  getBranchName: (id: string) => string;
+}
+
+export function exportInvoicesCSV(
+  invoices: Invoice[],
+  options: InvoiceExportOptions
+) {
+  const headers = [
+    "Comprobante",
+    "Tipo",
+    "Estado",
+    "Fecha Emisión",
+    "Cliente",
+    "Tipo Doc.",
+    "N° Documento",
+    "Sede",
+    "Gravada (S/.)",
+    "Exonerada (S/.)",
+    "Inafecta (S/.)",
+    "IGV (S/.)",
+    "Total (S/.)",
+    "Moneda",
+    "Método Pago",
+    "SUNAT Hash",
+    "Observaciones",
+  ];
+
+  const rows = invoices.map((inv) => [
+    csvEscape(formatInvoiceNumber(inv.serie, inv.correlativo)),
+    csvEscape(INVOICE_TYPE_LABELS[inv.invoice_type] || inv.invoice_type),
+    csvEscape(INVOICE_STATUS_LABELS[inv.status] || inv.status),
+    csvEscape(formatDate(inv.issue_date)),
+    csvEscape(inv.customer?.name || "—"),
+    csvEscape(inv.customer?.document_type || "—"),
+    csvEscape(inv.customer?.document_number || "—"),
+    csvEscape(options.getBranchName(inv.branch_id)),
+    csvEscape(formatCents(inv.gravada_cents)),
+    csvEscape(formatCents(inv.exonerada_cents)),
+    csvEscape(formatCents(inv.inafecta_cents)),
+    csvEscape(formatCents(inv.igv_cents)),
+    csvEscape(formatCents(inv.total_cents)),
+    csvEscape("PEN"),
+    csvEscape(inv.payment_method || "—"),
+    csvEscape(inv.sunat_hash || "—"),
+    csvEscape(inv.notes || "—"),
+  ]);
+
+  const csv = buildCSV(headers, rows);
+  const timestamp = new Date().toISOString().split("T")[0];
+  downloadCSV(csv, `comprobantes_${timestamp}.csv`);
+}
+
+// ==========================================
+// Export Clients (Clientes) to CSV
+// ==========================================
+
+export interface ClientExportRow {
+  name: string;
+  document_type: string;
+  document_number: string;
+  phone: string | null;
+  email: string | null;
+  address: string | null;
+  city: string | null;
+  department_code: string;
+  province_code: string;
+  district_code: string;
+  is_selva_zone: boolean;
+  is_active: boolean;
+  created_at: string;
+}
+
+export function exportClientsCSV(clients: ClientExportRow[]) {
+  const headers = [
+    "Razón Social / Nombre",
+    "Tipo Documento",
+    "N° Documento",
+    "Teléfono",
+    "Email",
+    "Dirección",
+    "Ciudad",
+    "Código Departamento",
+    "Código Provincia",
+    "Código Distrito",
+    "Zona Selva",
+    "Activo",
+    "Fecha Registro",
+  ];
+
+  const rows = clients.map((c) => [
+    csvEscape(c.name),
+    csvEscape(c.document_type),
+    csvEscape(c.document_number),
+    csvEscape(c.phone || "—"),
+    csvEscape(c.email || "—"),
+    csvEscape(c.address || "—"),
+    csvEscape(c.city || "—"),
+    csvEscape(c.department_code),
+    csvEscape(c.province_code),
+    csvEscape(c.district_code),
+    csvEscape(c.is_selva_zone ? "Sí" : "No"),
+    csvEscape(c.is_active ? "Sí" : "No"),
+    csvEscape(formatDate(c.created_at)),
+  ]);
+
+  const csv = buildCSV(headers, rows);
+  const timestamp = new Date().toISOString().split("T")[0];
+  downloadCSV(csv, `clientes_${timestamp}.csv`);
+}
+
+// ==========================================
+// Export Sales Report (Reporte de Ventas)
+// ==========================================
+
+export interface SalesReportRow {
+  period: string;
+  totalFacturas: number;
+  totalBoletas: number;
+  totalNotasCredito: number;
+  totalNotasDebito: number;
+  gravada: number;
+  exonerada: number;
+  inafecta: number;
+  igv: number;
+  total: number;
+}
+
+export function exportSalesReportCSV(
+  reportRows: SalesReportRow[],
+  dateFrom: string,
+  dateTo: string
+) {
+  const headers = [
+    "Periodo",
+    "Facturas",
+    "Boletas",
+    "Notas Crédito",
+    "Notas Débito",
+    "Gravada (S/.)",
+    "Exonerada (S/.)",
+    "Inafecta (S/.)",
+    "IGV (S/.)",
+    "Total (S/.)",
+  ];
+
+  const rows = reportRows.map((r) => [
+    csvEscape(r.period),
+    csvEscape(r.totalFacturas),
+    csvEscape(r.totalBoletas),
+    csvEscape(r.totalNotasCredito),
+    csvEscape(r.totalNotasDebito),
+    csvEscape(formatCents(r.gravada)),
+    csvEscape(formatCents(r.exonerada)),
+    csvEscape(formatCents(r.inafecta)),
+    csvEscape(formatCents(r.igv)),
+    csvEscape(formatCents(r.total)),
+  ]);
+
+  const totalsRow = [
+    csvEscape("TOTAL"),
+    csvEscape(reportRows.reduce((s, r) => s + r.totalFacturas, 0)),
+    csvEscape(reportRows.reduce((s, r) => s + r.totalBoletas, 0)),
+    csvEscape(reportRows.reduce((s, r) => s + r.totalNotasCredito, 0)),
+    csvEscape(reportRows.reduce((s, r) => s + r.totalNotasDebito, 0)),
+    csvEscape(formatCents(reportRows.reduce((s, r) => s + r.gravada, 0))),
+    csvEscape(formatCents(reportRows.reduce((s, r) => s + r.exonerada, 0))),
+    csvEscape(formatCents(reportRows.reduce((s, r) => s + r.inafecta, 0))),
+    csvEscape(formatCents(reportRows.reduce((s, r) => s + r.igv, 0))),
+    csvEscape(formatCents(reportRows.reduce((s, r) => s + r.total, 0))),
+  ];
+
+  const csv = buildCSV(headers, [...rows, totalsRow]);
+  downloadCSV(csv, `reporte_ventas_${dateFrom}_${dateTo}.csv`);
 }

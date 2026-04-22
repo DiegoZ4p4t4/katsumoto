@@ -5,7 +5,7 @@ import {
   LogOut, ArrowUpDown, Store, Building2, ArrowLeftRight,
   Cog, ChevronsLeft, ChevronsRight, Wallet, ShoppingBag,
   Scale, ShieldCheck, FileSpreadsheet, Truck, ChevronDown,
-  Printer, Monitor,
+  Printer, Monitor, BarChart3,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useSidebar } from "./SidebarContext";
@@ -45,6 +45,7 @@ const navSections: NavSection[] = [
       { path: "/clients", label: "Clientes", icon: Users },
       { path: "/orders", label: "Pedidos Online", icon: ShoppingBag },
       { path: "/cash-registers", label: "Cajas", icon: Wallet },
+      { path: "/reports", label: "Reportes", icon: BarChart3 },
     ],
   },
   {

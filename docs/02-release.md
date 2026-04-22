@@ -33,6 +33,16 @@ gh release edit vX.Y.Z --draft=false
 
 O desde https://github.com/DiegoZ4p4t4/katsumoto/releases
 
+### 5. Actualizar version web (Docker)
+
+La version web corre en Docker y **NO se actualiza automaticamente** con el push. Se debe rebuild:
+
+```bash
+docker compose build --no-cache && docker compose up -d
+```
+
+Ver `docs/03-deployment.md` para detalles completos del flujo web vs desktop.
+
 ## Como actualizar la app
 
 Las actualizaciones se gestionan desde la pagina **Sistema** (`/sistema`):

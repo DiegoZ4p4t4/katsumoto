@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useBranches } from "@/hooks/useBranches";
 import { useStockMovements } from "@/hooks/useStockMovements";
-import { formatCents, formatDate } from "@/lib/format";
+import { formatCents, formatDate, formatDateTime } from "@/lib/format";
 import type { Product } from "@/lib/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -81,7 +81,7 @@ export function ProductKardex({ product, open, onClose }: ProductKardexProps) {
     interface RunningEntry {
       date: string;
       concept: string;
-      type: "in" | "out" | "adjustment" | "transfer";
+      type: "in" | "out" | "adjustment" | "transfer" | "transfer_out" | "transfer_in" | "return";
       entryQty: number;
       entryCost: number;
       entryTotal: number;
@@ -102,9 +102,9 @@ export function ProductKardex({ product, open, onClose }: ProductKardexProps) {
       if (branchFilter !== "all" && m.branch_id !== branchFilter) continue;
 
       const branchName = getBranchName(m.branch_id);
-      const isEntry = m.movement_type === "in" || (m.movement_type === "adjustment" && m.quantity > 0);
-      const isExit = m.movement_type === "out" || (m.movement_type === "adjustment" && m.quantity < 0);
-      const isTransfer = m.movement_type === "transfer";
+      const isEntry = m.movement_type === "in" || m.movement_type === "return" || m.movement_type === "transfer_in" || (m.movement_type === "adjustment" && m.quantity > 0);
+      const isExit = m.movement_type === "out" || m.movement_type === "transfer_out" || (m.movement_type === "adjustment" && m.quantity < 0);
+      const isTransfer = m.movement_type === "transfer" || m.movement_type === "transfer_out" || m.movement_type === "transfer_in";
 
       let entryQty = 0, entryCost = 0, entryTotal = 0;
       let exitQty = 0, exitCost = 0, exitTotal = 0;
@@ -132,7 +132,6 @@ export function ProductKardex({ product, open, onClose }: ProductKardexProps) {
         if (runningTotalCost < 0) runningTotalCost = 0;
         runningAvgCost = runningQty > 0 ? runningTotalCost / runningQty : runningAvgCost;
       } else if (isTransfer) {
-        // Transfer out from source branch
         const qty = Math.abs(m.quantity);
         exitQty = qty;
         exitCost = runningAvgCost;
@@ -400,7 +399,7 @@ export function ProductKardex({ product, open, onClose }: ProductKardexProps) {
 
               {entries.map((entry, idx) => (
                 <tr key={idx} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
-                  <td className="py-2 px-3 text-muted-foreground whitespace-nowrap">{formatDate(entry.date)}</td>
+                  <td className="py-2 px-3 text-muted-foreground whitespace-nowrap">{formatDateTime(entry.date)}</td>
                   <td className="py-2 px-3 max-w-[200px] truncate" title={entry.concept}>{entry.concept}</td>
                   {/* Entry */}
                   <td className="py-2 px-2 text-right text-green-700 dark:text-green-400 font-medium">{entry.entryQty > 0 ? entry.entryQty : ""}</td>
@@ -450,6 +449,9 @@ function getConceptLabel(m: { movement_type: string; notes: string | null; refer
     case "out": return m.reference_type === "invoice" ? "Salida por venta" : "Salida";
     case "adjustment": return "Ajuste de inventario";
     case "transfer": return "Transferencia entre sedes";
+    case "transfer_out": return "Salida por transferencia";
+    case "transfer_in": return "Entrada por transferencia";
+    case "return": return "Devolución";
     default: return "Movimiento";
   }
 }
@@ -460,6 +462,9 @@ function typeLabel(type: string): string {
     case "out": return "Salida";
     case "adjustment": return "Ajuste";
     case "transfer": return "Transferencia";
+    case "transfer_out": return "Transf. salida";
+    case "transfer_in": return "Transf. entrada";
+    case "return": return "Devolución";
     default: return type;
   }
 }

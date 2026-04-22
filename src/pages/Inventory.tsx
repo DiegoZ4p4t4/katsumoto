@@ -221,7 +221,8 @@ export default function Inventory() {
       .filter(Boolean) as MachineModel[];
 
   const handleExportCSV = () => {
-    exportInventoryCSV(sorted, getMachinesForProduct);
+    const activeBranches = branches.filter((b) => b.is_active);
+    exportInventoryCSV(sorted, { getMachinesForProduct, branches: activeBranches, branchStocks });
     showSuccess("Exportados " + sorted.length + " productos a CSV");
   };
 

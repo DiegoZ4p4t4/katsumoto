@@ -22,3 +22,4 @@ export { useInvoiceMutations } from "./useInvoiceMutations";
 export { useCrudMutations } from "./useCrudMutations";
 export type { CrudService, CrudMutationsConfig } from "./useCrudMutations";
 export { useSunatConfig, useSunatSummaryLogs, useSunatMutations } from "./useSunatConfig";
+export { useAccountingReport, useSalesReport } from "./useReports";

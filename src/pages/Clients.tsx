@@ -17,11 +17,13 @@ import { ClientTable } from "@/components/clients/ClientTable";
 import { ClientFormDialog } from "@/components/clients/ClientFormDialog";
 import type { Customer } from "@/lib/types";
 import { Button } from "@/components/ui/button";
+import { exportClientsCSV } from "@/lib/export";
+import { showSuccess } from "@/utils/toast";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Loader2, AlertCircle, RefreshCw, Users } from "lucide-react";
+import { Plus, Loader2, AlertCircle, RefreshCw, Users, Download } from "lucide-react";
 
 const defaultValues: ClientFormValues = {
   name: "", document_type: "RUC", document_number: "",
@@ -118,6 +120,11 @@ export default function Clients() {
     }
   };
 
+  const handleExportCSV = () => {
+    exportClientsCSV(sorted);
+    showSuccess(`Exportados ${sorted.length} clientes a CSV`);
+  };
+
   const confirmDelete = () => {
     if (deleteId) deleteClient(deleteId);
     setDeleteOpen(false); setDeleteId(null);
@@ -130,9 +137,14 @@ export default function Clients() {
           <h1 className="text-2xl md:text-3xl font-bold">Clientes</h1>
           <HelpHint {...HELP_TEXTS.clients} />
         </div>
-        <Button onClick={openNew} className="rounded-xl bg-orange-600 hover:bg-orange-700">
-          <Plus className="w-4 h-4 mr-2" />Nuevo Cliente
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleExportCSV} disabled={sorted.length === 0} className="rounded-xl">
+            <Download className="w-4 h-4 mr-2" />Exportar CSV
+          </Button>
+          <Button onClick={openNew} className="rounded-xl bg-orange-600 hover:bg-orange-700">
+            <Plus className="w-4 h-4 mr-2" />Nuevo Cliente
+          </Button>
+        </div>
       </div>
 
       <ClientStats total={filtered.length} totalRUC={totalRUC} totalWithInvoices={totalWithInvoices} />

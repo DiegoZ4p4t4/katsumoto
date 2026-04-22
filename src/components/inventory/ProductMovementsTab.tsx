@@ -1,5 +1,5 @@
 import type { StockMovement } from "@/lib/types";
-import { formatDate } from "@/lib/format";
+import { formatDateTime } from "@/lib/format";
 import {
   ArrowDown, ArrowUp, ArrowLeftRight, Activity,
   type LucideIcon,
@@ -10,6 +10,9 @@ const movementIcons: Record<string, { icon: LucideIcon; color: string; bg: strin
   out: { icon: ArrowUp, color: "text-red-700 dark:text-red-400", bg: "bg-red-100 dark:bg-red-900/30" },
   adjustment: { icon: ArrowLeftRight, color: "text-amber-700 dark:text-amber-400", bg: "bg-amber-100 dark:bg-amber-900/30" },
   transfer: { icon: ArrowLeftRight, color: "text-blue-700 dark:text-blue-400", bg: "bg-blue-100 dark:bg-blue-900/30" },
+  transfer_out: { icon: ArrowLeftRight, color: "text-orange-700 dark:text-orange-400", bg: "bg-orange-100 dark:bg-orange-900/30" },
+  transfer_in: { icon: ArrowLeftRight, color: "text-blue-700 dark:text-blue-400", bg: "bg-blue-100 dark:bg-blue-900/30" },
+  return: { icon: ArrowDown, color: "text-purple-700 dark:text-purple-400", bg: "bg-purple-100 dark:bg-purple-900/30" },
 };
 
 interface ProductMovementsTabProps {
@@ -37,7 +40,7 @@ export function ProductMovementsTab({ movements, getBranchName }: ProductMovemen
         {movements.map(m => {
           const cfg = movementIcons[m.movement_type] || movementIcons.adjustment;
           const Icon = cfg.icon;
-          const typeLabel = m.movement_type === "in" ? "Entrada" : m.movement_type === "out" ? "Salida" : m.movement_type === "transfer" ? "Transferencia" : "Ajuste";
+          const typeLabel = m.movement_type === "in" ? "Entrada" : m.movement_type === "out" ? "Salida" : m.movement_type === "transfer" || m.movement_type === "transfer_out" || m.movement_type === "transfer_in" ? "Transferencia" : m.movement_type === "return" ? "Devolución" : "Ajuste";
           return (
             <div key={m.id} className="flex items-center gap-3 p-3 rounded-xl border bg-muted/20">
               <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${cfg.bg}`}><Icon className={`w-4 h-4 ${cfg.color}`} /></div>
@@ -49,7 +52,7 @@ export function ProductMovementsTab({ movements, getBranchName }: ProductMovemen
                   {m.transfer_to_branch_id && (<><span className="text-[10px] text-muted-foreground">→</span><span className="text-[10px] text-blue-600 dark:text-blue-400">{getBranchName(m.transfer_to_branch_id)}</span></>)}
                 </div>
                 {m.notes && <p className="text-[10px] text-muted-foreground truncate mt-0.5">{m.notes}</p>}
-                <p className="text-[10px] text-muted-foreground mt-0.5">{formatDate(m.created_at)}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{formatDateTime(m.created_at)}</p>
               </div>
               <div className="text-right flex-shrink-0">
                 <p className={`text-sm font-bold ${m.movement_type === "out" ? "text-red-600 dark:text-red-400" : "text-green-600 dark:text-green-400"}`}>{m.movement_type === "out" ? "−" : "+"}{m.quantity}</p>

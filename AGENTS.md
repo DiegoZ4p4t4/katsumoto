@@ -196,15 +196,24 @@ curl -X PATCH "https://api.supabase.com/v1/projects/kdsjojrrspzmufdumywd/functio
   - [x] `check-despatch-ticket` action (poll: 0=aceptado, 98=proceso, 99=rechazado)
   - [x] Columnas `gre_client_id`, `gre_client_secret` en `sunat_config`
   - [x] Flujo REST verificado: reach OAuth2 endpoint correctamente
+- [x] **FASE 2 - Optimizacion DB + Realtime + UX:**
+  - [x] RLS InitPlan: 63 politicas corregidas (`auth.uid()` → `(select auth.uid())`, `org_id()` actualizada)
+  - [x] 22 indices FK creados en columnas de foreign key sin cobertura
+  - [x] Realtime habilitado en `customers`, `despatches`, `products` (7/7 tablas del hook)
+  - [x] Fix `transfer_stock`: usa `transfer_out`/`transfer_in` para distinguir direccion
+  - [x] CHECK constraint actualizado: incluye `transfer_out`, `transfer_in`, `return`
+  - [x] Pagina Transferencias: filtra solo `transfer_out` (1 fila por operacion)
+  - [x] Movimientos/Kardex: `transfer_out` = salida rojo, `transfer_in` = entrada verde
+  - [x] `formatDateTime()` en todos los modulos de stock (fecha + hora)
+  - [x] Tipo `MovementType` + configs actualizados con `transfer_out`, `transfer_in`, `return`
+  - [x] StockMovements: filtro por fecha, fallback en movementConfig
+  - [x] Version web Docker: `docker-compose.dev.yml` + `Dockerfile.dev` documentados
 
 ### PENDIENTE - GRE (ver `PLAN_GRE_REST_API.md` y `AVANCE_GRE.md`)
 - [ ] **Credenciales OAuth2 reales** - Registrar empresa en SUNAT Menú SOL para obtener `client_id` + `client_secret`
 - [ ] **Test envio GRE completo** - send-despatch + check-despatch-ticket con credenciales reales
 
 ### PENDIENTE - Consolidacion (FASE 2)
-- [x] ~~Eliminar OTROS/sunat-billing-api/~~ - Ya no existe
-- [x] ~~Limpiar OTROS/migration-sql/~~ - Ya no existe
-- [x] ~~Eliminar OTROS/certificado_sunat_20608183672.p12~~ - Ya no existe
 - [ ] **Limpiar debug-despatch** - Remover handleDebugDespatch de index.ts (era para testing SOAP)
 - [ ] **Limpiar sunat-billing-consolidated** - EF legacy en supabase/functions/
 

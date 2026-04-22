@@ -1,5 +1,5 @@
 // ---------- Stock Enums ----------
-export type MovementType = "in" | "out" | "adjustment" | "transfer" | "return";
+export type MovementType = "in" | "out" | "adjustment" | "transfer" | "transfer_out" | "transfer_in" | "return";
 
 // ---------- Stock Movement ----------
 export interface StockMovement {

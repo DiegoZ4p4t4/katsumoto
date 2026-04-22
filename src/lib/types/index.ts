@@ -13,3 +13,4 @@ export * from "./order";
 export * from "./geo";
 export * from "./sunat";
 export * from "./despatch";
+export * from "./report";

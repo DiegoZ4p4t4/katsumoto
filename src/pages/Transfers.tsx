@@ -6,7 +6,7 @@ import { useBranches } from "@/hooks/useBranches";
 import { useProducts } from "@/hooks/useProducts";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { stockService } from "@/services/stock.service";
-import { formatDate } from "@/lib/format";
+import { formatDateTime } from "@/lib/format";
 import { usePagination } from "@/hooks/usePagination";
 import { PaginationControls } from "@/components/data-table/PaginationControls";
 import { HelpHint } from "@/components/HelpHint";
@@ -86,7 +86,7 @@ export default function Transfers() {
     }
   }, [location.state, prefillFromState]);
 
-  const transfers = useMemo(() => movements.filter(m => m.movement_type === "transfer"), [movements]);
+  const transfers = useMemo(() => movements.filter(m => m.movement_type === "transfer_out"), [movements]);
   const productMap = useMemo(() => new Map(products.map(p => [p.id, p])), [products]);
   const branchMap = useMemo(() => new Map(branches.map(b => [b.id, b])), [branches]);
   const getProductName = useCallback((id: string) => productMap.get(id)?.name || "—", [productMap]);
@@ -284,7 +284,7 @@ export default function Transfers() {
               <tbody>
                 {paginated.map((t) => (
                   <tr key={t.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
-                    <td className="py-3 px-4 whitespace-nowrap text-xs text-muted-foreground">{formatDate(t.created_at)}</td>
+                    <td className="py-3 px-4 whitespace-nowrap text-xs text-muted-foreground">{formatDateTime(t.created_at)}</td>
                     <td className="py-3 px-4">
                       <p className="font-medium text-sm">{getProductName(t.product_id)}</p>
                       <p className="text-xs text-muted-foreground font-mono">{getProductSku(t.product_id)}</p>

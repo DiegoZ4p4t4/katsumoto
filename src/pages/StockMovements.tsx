@@ -5,7 +5,7 @@ import { useStockMovements } from "@/hooks/useStockMovements";
 import { useProducts } from "@/hooks/useProducts";
 import { usePagination } from "@/hooks/usePagination";
 import { PaginationControls } from "@/components/data-table/PaginationControls";
-import { formatDate } from "@/lib/format";
+import { formatDateTime } from "@/lib/format";
 import { exportMovementsCSV } from "@/lib/export";
 import { HelpHint } from "@/components/HelpHint";
 import { HELP_TEXTS } from "@/lib/help-texts";
@@ -14,7 +14,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowDown, ArrowUp, ArrowLeftRight, Search, Download, Clock, Loader2, AlertCircle, RefreshCw, type LucideIcon } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowLeftRight, Search, Download, Clock, Loader2, AlertCircle, RefreshCw, Calendar, type LucideIcon } from "lucide-react";
 import { showSuccess } from "@/utils/toast";
 
 const movementConfig: Record<MovementType, { label: string; color: string; icon: LucideIcon }> = {
@@ -22,6 +22,9 @@ const movementConfig: Record<MovementType, { label: string; color: string; icon:
   out: { label: "Salida", color: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400", icon: ArrowUp },
   adjustment: { label: "Ajuste", color: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400", icon: ArrowLeftRight },
   transfer: { label: "Transferencia", color: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-400", icon: ArrowLeftRight },
+  transfer_out: { label: "Transferencia", color: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-400", icon: ArrowLeftRight },
+  transfer_in: { label: "Transferencia", color: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-400", icon: ArrowLeftRight },
+  return: { label: "Devolución", color: "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400", icon: ArrowDown },
 };
 
 const refTypeLabels: Record<string, string> = {
@@ -37,6 +40,8 @@ export default function StockMovements() {
   const debouncedSearch = useDebounce(search);
   const [typeFilter, setTypeFilter] = useState("all");
   const [productFilter, setProductFilter] = useState("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   const productMap = useMemo(() => new Map(products.map(p => [p.id, p])), [products]);
 
@@ -46,16 +51,20 @@ export default function StockMovements() {
   const filtered = useMemo(() => branchMovements.filter(m => {
     const productName = getProductName(m.product_id).toLowerCase();
     const matchSearch = productName.includes(debouncedSearch.toLowerCase()) || m.notes?.toLowerCase().includes(debouncedSearch.toLowerCase()) || getProductSku(m.product_id).toLowerCase().includes(debouncedSearch.toLowerCase());
-    const matchType = typeFilter === "all" || m.movement_type === typeFilter;
+    const matchType = typeFilter === "all" || m.movement_type === typeFilter
+      || (typeFilter === "transfer" && (m.movement_type === "transfer_out" || m.movement_type === "transfer_in"));
     const matchProduct = productFilter === "all" || m.product_id === productFilter;
-    return matchSearch && matchType && matchProduct;
-  }), [branchMovements, debouncedSearch, typeFilter, productFilter, getProductName, getProductSku]);
+    const mDate = m.created_at.split("T")[0];
+    const matchDateFrom = !dateFrom || mDate >= dateFrom;
+    const matchDateTo = !dateTo || mDate <= dateTo;
+    return matchSearch && matchType && matchProduct && matchDateFrom && matchDateTo;
+  }), [branchMovements, debouncedSearch, typeFilter, productFilter, dateFrom, dateTo, getProductName, getProductSku]);
 
   const { totalIn, totalOut, totalAdj, totalTransfer } = useMemo(() => ({
     totalIn: filtered.filter(m => m.movement_type === "in").reduce((s, m) => s + m.quantity, 0),
     totalOut: filtered.filter(m => m.movement_type === "out").reduce((s, m) => s + m.quantity, 0),
     totalAdj: filtered.filter(m => m.movement_type === "adjustment").reduce((s, m) => s + m.quantity, 0),
-    totalTransfer: filtered.filter(m => m.movement_type === "transfer").reduce((s, m) => s + m.quantity, 0),
+    totalTransfer: filtered.filter(m => m.movement_type === "transfer" || m.movement_type === "transfer_out" || m.movement_type === "transfer_in").reduce((s, m) => s + m.quantity, 0),
   }), [filtered]);
 
   const pagination = usePagination({ totalItems: filtered.length });
@@ -151,6 +160,12 @@ export default function StockMovements() {
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input placeholder="Buscar por producto, nota..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 rounded-xl" />
         </div>
+        <div className="flex items-center gap-2">
+          <Calendar className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+          <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="rounded-xl w-[145px]" placeholder="Desde" />
+          <span className="text-muted-foreground text-sm">—</span>
+          <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="rounded-xl w-[145px]" placeholder="Hasta" />
+        </div>
         <Select value={typeFilter} onValueChange={setTypeFilter}>
           <SelectTrigger className="w-full sm:w-44 rounded-xl"><SelectValue placeholder="Tipo" /></SelectTrigger>
           <SelectContent>
@@ -187,10 +202,10 @@ export default function StockMovements() {
               </thead>
               <tbody>
                 {paginated.map(m => {
-                  const cfg = movementConfig[m.movement_type];
+                  const cfg = movementConfig[m.movement_type] || movementConfig.adjustment;
                   return (
                     <tr key={m.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
-                      <td className="py-3 px-4 whitespace-nowrap text-xs text-muted-foreground">{formatDate(m.created_at)}</td>
+                      <td className="py-3 px-4 whitespace-nowrap text-xs text-muted-foreground">{formatDateTime(m.created_at)}</td>
                       <td className="py-3 px-4">
                         <p className="font-medium text-sm truncate max-w-[200px]">{getProductName(m.product_id)}</p>
                         <p className="text-xs text-muted-foreground font-mono">{getProductSku(m.product_id)}</p>
@@ -200,8 +215,8 @@ export default function StockMovements() {
                           <cfg.icon className="w-3 h-3" />{cfg.label}
                         </span>
                       </td>
-                      <td className={`py-3 px-4 text-right font-bold ${m.movement_type === "out" ? "text-red-600 dark:text-red-400" : m.movement_type === "in" ? "text-green-600 dark:text-green-400" : m.movement_type === "transfer" ? "text-orange-600 dark:text-orange-400" : "text-amber-600 dark:text-amber-400"}`}>
-                        {m.movement_type === "out" ? "-" : "+"}{m.quantity}
+                      <td className={`py-3 px-4 text-right font-bold ${m.movement_type === "out" || m.movement_type === "transfer_out" ? "text-red-600 dark:text-red-400" : m.movement_type === "in" || m.movement_type === "transfer_in" || m.movement_type === "return" ? "text-green-600 dark:text-green-400" : "text-amber-600 dark:text-amber-400"}`}>
+                        {m.movement_type === "out" || m.movement_type === "transfer_out" ? "-" : "+"}{m.quantity}
                       </td>
                       <td className="py-3 px-4 text-center text-xs">
                         <span className="text-muted-foreground">{getBranchName(m.branch_id)}</span>

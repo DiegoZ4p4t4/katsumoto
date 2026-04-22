@@ -49,4 +49,10 @@ export const queryKeys = {
     all: ["despatches"] as const,
     detail: (id: string) => ["despatches", id] as const,
   },
+  reports: {
+    accounting: (dateFrom: string, dateTo: string, branchId: string) =>
+      ["reports", "accounting", dateFrom, dateTo, branchId] as const,
+    sales: (dateFrom: string, dateTo: string, branchId: string) =>
+      ["reports", "sales", dateFrom, dateTo, branchId] as const,
+  },
 } as const;

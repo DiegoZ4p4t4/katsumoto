@@ -38,6 +38,7 @@ const PrinterSettingsPage = lazy(() => import("./pages/PrinterSettings"));
 const SystemPage = lazy(() => import("./pages/System"));
 const Login = lazy(() => import("./pages/auth/Login"));
 const Register = lazy(() => import("./pages/auth/Register"));
+const Reports = lazy(() => import("./pages/Reports"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const StoreLayout = lazy(() => import("./pages/tienda/StoreLayout"));
 const StoreIndex = lazy(() => import("./pages/tienda/StoreIndex"));
@@ -111,6 +112,7 @@ function AppRoutes() {
           <Route path="/despatches" element={<Despatches />} />
           <Route path="/despatches/new" element={<CreateDespatch />} />
           <Route path="/printer-settings" element={<PrinterSettingsPage />} />
+          <Route path="/reports" element={<Reports />} />
           <Route path="/system" element={<SystemPage />} />
           <Route path="*" element={<NotFound />} />
         </Route>

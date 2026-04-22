@@ -9,12 +9,15 @@ import { HELP_TEXTS } from "@/lib/help-texts";
 import type { Invoice } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Plus, Loader2, AlertCircle, RefreshCw, FileText } from "lucide-react";
+import { Plus, Loader2, AlertCircle, RefreshCw, FileText, Download, BarChart3 } from "lucide-react";
 import { InvoiceFilters } from "@/components/invoices/InvoiceFilters";
 import { InvoiceTable } from "@/components/invoices/InvoiceTable";
 import { InvoiceDetail } from "@/components/invoices/InvoiceDetail";
 import { CreateCreditNote } from "@/components/invoices/CreateCreditNote";
+import { SalesReportDialog } from "@/components/invoices/SalesReportDialog";
 import { invoiceService } from "@/services/invoice.service";
+import { exportInvoicesCSV } from "@/lib/export";
+import { showSuccess } from "@/utils/toast";
 
 export default function Invoices() {
   const { branchInvoices, getBranchName, selectedBranchId, isLoading, error } = useInvoices();
@@ -25,6 +28,12 @@ export default function Invoices() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [viewInvoice, setViewInvoice] = useState<Invoice | null>(null);
   const [ncInvoice, setNcInvoice] = useState<Invoice | null>(null);
+  const [reportOpen, setReportOpen] = useState(false);
+
+  const handleExportCSV = () => {
+    exportInvoicesCSV(filtered, { getBranchName });
+    showSuccess(`Exportados ${filtered.length} comprobantes a CSV`);
+  };
 
   const handleCreateCreditNote = async (invoice: Invoice) => {
     const full = await invoiceService.getById(invoice.id);
@@ -85,9 +94,17 @@ export default function Invoices() {
           <h1 className="text-2xl md:text-3xl font-bold">Comprobantes de Pago</h1>
           <HelpHint {...HELP_TEXTS.invoices} />
         </div>
-        <Button onClick={() => navigate("/invoices/new")} className="rounded-xl bg-orange-600 hover:bg-orange-700">
-          <Plus className="w-4 h-4 mr-2" />Nuevo Comprobante
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setReportOpen(true)} className="rounded-xl">
+            <BarChart3 className="w-4 h-4 mr-2" />Reporte Ventas
+          </Button>
+          <Button variant="outline" onClick={handleExportCSV} disabled={filtered.length === 0} className="rounded-xl">
+            <Download className="w-4 h-4 mr-2" />Exportar CSV
+          </Button>
+          <Button onClick={() => navigate("/invoices/new")} className="rounded-xl bg-orange-600 hover:bg-orange-700">
+            <Plus className="w-4 h-4 mr-2" />Nuevo Comprobante
+          </Button>
+        </div>
       </div>
 
       <p className="text-sm text-muted-foreground -mt-4">
@@ -140,6 +157,12 @@ export default function Invoices() {
           onSuccess={() => queryClient.invalidateQueries({ queryKey: ["invoices"] })}
         />
       )}
+
+      <SalesReportDialog
+        open={reportOpen}
+        onOpenChange={setReportOpen}
+        invoices={branchInvoices}
+      />
     </div>
   );
 }

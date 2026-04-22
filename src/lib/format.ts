@@ -29,6 +29,17 @@ export function formatDate(dateString: string): string {
   });
 }
 
+/** Formatea fecha y hora en formato peruano */
+export function formatDateTime(dateString: string): string {
+  return new Date(dateString).toLocaleDateString("es-PE", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export function formatDateLong(dateString: string): string {
   return new Date(dateString).toLocaleDateString("es-PE", {
     year: "numeric",
