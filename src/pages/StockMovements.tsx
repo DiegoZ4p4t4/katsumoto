@@ -219,9 +219,18 @@ export default function StockMovements() {
                         {m.movement_type === "out" || m.movement_type === "transfer_out" ? "-" : "+"}{m.quantity}
                       </td>
                       <td className="py-3 px-4 text-center text-xs">
-                        <span className="text-muted-foreground">{getBranchName(m.branch_id)}</span>
-                        {m.transfer_to_branch_id && (
-                          <span className="text-orange-600 dark:text-orange-400"> → {getBranchName(m.transfer_to_branch_id)}</span>
+                        {m.transfer_to_branch_id && m.movement_type === "transfer_in" ? (
+                          <>
+                            <span className="text-muted-foreground">{getBranchName(m.transfer_to_branch_id)}</span>
+                            <span className="text-orange-600 dark:text-orange-400"> → {getBranchName(m.branch_id)}</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-muted-foreground">{getBranchName(m.branch_id)}</span>
+                            {m.transfer_to_branch_id && (
+                              <span className="text-orange-600 dark:text-orange-400"> → {getBranchName(m.transfer_to_branch_id)}</span>
+                            )}
+                          </>
                         )}
                       </td>
                       <td className="py-3 px-4 text-center hidden sm:table-cell">
